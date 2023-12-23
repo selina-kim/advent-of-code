@@ -1,93 +1,94 @@
-lines = []
-res = []
+############# Example Part 1 #############
+EXAMPLE = """467..114..
+...*......
+..35..633.
+......#...
+617*......
+.....+.58.
+..592.....
+......755.
+...$.*....
+.664.598..""".strip()
+##########################################
+
+PUZZLE = ""
 
 with open("puzzle-input/day3.txt", 'r') as fh:
-    s = fh.read().strip()
-    lines = s.split("\n")
-
-############# Example Part 1 #############
-# x = """467..114..
-# ...*......
-# ..35..633.
-# ......#...
-# 617*......
-# .....+.58.
-# ..592.....
-# ......755.
-# ...$.*....
-# .664.598..""".strip()
-# lines = x.split("\n")
-##########################################
+    PUZZLE = fh.read().strip()
 
 def is_symbol(string):
     if string != "." and not string.isdigit():
         return True
     return False
 
-for idx, line in enumerate(lines):
+def find_num(line, idx):
 
-    for char_idx, char in enumerate(line):
-        num_len = 1
-        # print('''"''' + str(char) + '''"''')
-        if char.isdigit():
+    nums = []
 
-            is_part_num = False
+    if line[idx].isdigit():
+        start = idx
+        end = idx
+        # check left
+        for i in range(idx, -1, -1):
+            if line[i].isdigit():
+                start = i
+            else: break
+        # check right
+        for i in range(idx+1, len(line)):
+            if line[i].isdigit():
+                end = i
+            else: break
+        nums.append(int(line[start:end+1]))
 
-            # if the prev character is a number (we alr checked so move on)
-            if char_idx !=0 and line[char_idx-1].isdigit():
-                continue
-            # first check how long this number is
-            for x in range(char_idx+1, len(line)):
-                if line[x].isdigit():
-                    num_len += 1
-                else: break
-                
-            for i in range(char_idx, char_idx+num_len):
-                # first digit of num
-                if i == char_idx and i != 0:
-                    # check same line (left)
-                    if is_symbol(line[i-1]):
-                        is_part_num = True
-                        break
-                    # check prev line (left up diagonal)
-                    if idx != 0:
-                        if is_symbol(lines[idx-1][i-1]):
-                            is_part_num = True
-                            break
-                    # check next line (left down diagonal)
-                    if idx != len(lines)-1:
-                        if is_symbol(lines[idx+1][i-1]):
-                            is_part_num = True
-                            break
-                # last digit of num
-                if i == char_idx+num_len-1 and i != len(line)-1:
-                    # check same line (right)
-                    if is_symbol(line[i+1]):
-                        is_part_num = True
-                        break
-                    # check prev line (right up diagonal)
-                    if idx != 0:
-                        if is_symbol(lines[idx-1][i+1]):
-                            is_part_num = True
-                            break
-                    # check next line (right down diagonal)
-                    if idx != len(lines)-1:
-                        if is_symbol(lines[idx+1][i+1]):
-                            is_part_num = True
-                            break
-                # middle digits
+    else:
+        # check left
+        if idx > 0:
+            if line[idx-1].isdigit():
+                num_len = 1
+                for i in range(idx-2, -1, -1):
+                    if line[i].isdigit():
+                        num_len += 1
+                    else: break
+                nums.append(int(line[idx-num_len:idx]))
+        # check right
+        if idx < len(line)-1:
+            if line[idx+1].isdigit():
+                num_len = 1
+                for i in range(idx+2, len(line)):
+                    if line[i].isdigit():
+                        num_len += 1
+                    else: break
+                nums.append(int(line[idx+1:idx+1+num_len]))
+    
+    return nums
+
+def solution(input):
+
+    lines = input.split("\n")
+    res = []
+
+    for line_idx, line in enumerate(lines):
+        for char_idx, char in enumerate(line):
+            # print('''"''' + str(char) + '''"''')
+
+            if char == "*":
+
+                part_nums = []
+
                 # check prev line (up)
-                if idx != 0:
-                    if is_symbol(lines[idx-1][i]):
-                        is_part_num = True
-                        break
+                if line_idx != 0:
+                    part_nums.extend(find_num(lines[line_idx-1], char_idx))
+
+                # check same line
+                part_nums.extend(find_num(line, char_idx))
+                
                 # check next line (down)
-                if idx != len(lines)-1:
-                    if is_symbol(lines[idx+1][i]):
-                        is_part_num = True
-                        break
-            
-            if is_part_num:
-                res.append(int(line[char_idx:char_idx+num_len]))
+                if line_idx != len(lines)-1:
+                    part_nums.extend(find_num(lines[line_idx+1], char_idx))
+
+                if len(part_nums) == 2:
+                    res.append(part_nums[0] * part_nums[1])
                     
-print(res, "\n", sum(res))
+    print(res, "\n", sum(res))
+
+solution(PUZZLE)
