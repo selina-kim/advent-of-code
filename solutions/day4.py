@@ -12,23 +12,36 @@ PUZZLE = ""
 with open("puzzle-input/day4.txt", 'r') as fh:
     PUZZLE = fh.read().strip()
 
-def solution(input):
-
-    lines = input.split("\n")
-    res = []
-
-    for line_idx, line in enumerate(lines):
-        winning = line.split(":")[1].split("|")[0].strip().split()
-        mine = line.split(":")[1].split("|")[1].strip().split()
+def find_winning(lines):
+    if len(lines) > 0:
+        winning = lines[0].split(":")[1].split("|")[0].strip().split()
+        mine = lines[0].split(":")[1].split("|")[1].strip().split()
         count = 0
         
         for num in mine:
             if num in winning:
                 count +=1
+        return count
 
-        if count > 0:
-            res.append(2**(count-1))
+def solution(input):
 
-    print(res, "\n", sum(res))
+    lines = input.split("\n")
+    res = [0 for _ in range(len(lines))]
+
+    all_count = {}
+
+    for line_idx, line in enumerate(lines):
+        res[line_idx] += 1
+
+        if line_idx not in all_count:
+            all_count[line_idx] = find_winning(lines[line_idx:])
+
+        if all_count[line_idx] > 0:
+            for n in range(0, all_count[line_idx]):
+                res[line_idx+n+1] += res[line_idx]
+                all_count[line_idx+n+1] = find_winning(lines[line_idx+n+1:])
+
+    # print(all_count)
+    print(res, sum(res))
 
 solution(PUZZLE)
