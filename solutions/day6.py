@@ -16,31 +16,19 @@ def solution(input):
 
     res = None
 
-    times = [int(n) for n in lines[0].split(":")[1].strip().split()]
-    dists = [int(n) for n in lines[1].split(":")[1].strip().split()]
-    ways = [0 for _ in range(len(times))]
-    # ic(times)
-    # ic(dists)
+    time = int(lines[0].split(":")[1].strip().replace(" ", ""))
+    dist = int(lines[1].split(":")[1].strip().replace(" ", ""))
 
-    for i in range(len(times)):
-        t = times[i]
-        passed = False
-        for speed in range(times[i]+1):
-            duration = t - speed
-            # ic(t, speed, duration)
-            if (speed * duration) > dists[i]:
-                if not passed:
-                    passed = True
-                ways[i] += 1
-                # ic("works !", speed * duration, dists[i])
-            elif passed:
-                break
+    ic(time)
+    ic(dist)
 
-    ic(ways)
-    res = 1
+    res = None
 
-    for n in ways:
-        res *= n
+    for speed in range(time):
+        duration = time - speed
+        if speed * duration > dist:
+            res = time - speed - speed + 1
+            break
 
     print(res)
 
